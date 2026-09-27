@@ -1,4 +1,5 @@
 {
+  "_comment": "The cron schedule was changed to 0 0 * * * (once a day) to comply with Vercel's Hobby (free) tier limitations.",
   "crons": [
     {
       "path": "/api/cron/fetch-news",

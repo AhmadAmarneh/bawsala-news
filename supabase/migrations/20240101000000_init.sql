@@ -16,7 +16,8 @@ CREATE TABLE sources (
 
 CREATE TABLE categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL UNIQUE
+    name TEXT NOT NULL UNIQUE,
+    slug TEXT
 );
 
 CREATE TYPE article_type AS ENUM ('exclusive', 'aggregated');

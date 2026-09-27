@@ -18,7 +18,8 @@ The platform is built using a modern, serverless architecture that prioritizes s
 1. **Public Frontend (`/app/(public)`):** A highly responsive, editorial-style reading experience. Features a mixed timeline distinguishing between exclusive and aggregated articles.
 2. **CMS Dashboard (`/app/dashboard`):** Protected administrative area for content creation and source management.
 3. **Role-Based Access Control (RBAC):** Next.js Middleware (`proxy.ts`) enforces strict access rules based on user roles (`admin`, `journalist`, `reader`) synced via a PostgreSQL database trigger.
-4. **Aggregator Engine (`/api/cron/fetch-news`):** A serverless endpoint triggered hourly by Vercel Cron to parse active RSS feeds and populate the database with fresh content.
+4. **Aggregator Engine (`/api/cron/fetch-news`):** A serverless endpoint triggered automatically by Vercel Cron to parse active RSS feeds and populate the database with fresh content.
+   > **Note on Cron Schedule:** The schedule has been intentionally set to `0 0 * * *` (once a day) in `vercel.json` to comply with Vercel's Hobby (free) tier limitations.
 
 ## Database Schema (Supabase)
 - `users`: Extends `auth.users` with custom roles (synced automatically via trigger).

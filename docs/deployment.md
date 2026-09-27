@@ -53,7 +53,7 @@ Vercel deploys directly from your Git repository.
 
 Bawsala News uses a Vercel Cron Job to automatically fetch external RSS feeds.
 
-1. **vercel.json:** The `vercel.json` file in the root directory already configures the cron schedule (`"0 * * * *"` = run at the top of every hour).
+1. **vercel.json:** The `vercel.json` file in the root directory configures the cron schedule. It is set to `"0 0 * * *"` (run once a day at midnight) to explicitly comply with Vercel's Hobby (free) tier limits.
 2. **Verification:** Once the deployment finishes, navigate to your project dashboard on Vercel. Go to the **Settings > Cron Jobs** tab. You should see the `/api/cron/fetch-news` endpoint listed and scheduled successfully.
 3. **Manual Trigger:** You can manually trigger the cron job from this Vercel dashboard to immediately populate the database with fresh news.
 
