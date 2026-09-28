@@ -81,7 +81,7 @@ export default async function ArticlesManagementPage() {
                   </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                      {Array.isArray(article.categories) ? article.categories[0]?.name : (article.categories as any)?.name || 'Uncategorized'}
+                      {Array.isArray(article.categories) ? article.categories[0]?.name : article.categories?.name || 'Uncategorized'}
                     </span>
                   </TableCell>
                   <TableCell className="text-slate-500">

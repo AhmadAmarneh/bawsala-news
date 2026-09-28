@@ -14,8 +14,10 @@ const parser = new Parser({
 });
 
 export async function GET(request: Request) {
-  // Add authentication or a secret token check here if it's a real cron job
-  // For now, we will just run it
+  const authHeader = request.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   const supabase = await createClient();
 
@@ -85,8 +87,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ message: `Successfully fetched news. Inserted ${insertedCount} articles.` }, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in cron job:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }

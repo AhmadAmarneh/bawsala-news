@@ -17,7 +17,9 @@ const categoryImages: Record<string, string> = {
   'default': 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&q=80'
 };
 
-function getImageUrl(article: any) {
+import type { Article } from '@/lib/types';
+
+function getImageUrl(article: Pick<Article, 'image_url' | 'categories'>) {
   if (article.image_url) {
     return article.image_url;
   }

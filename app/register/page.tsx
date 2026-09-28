@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -89,10 +90,10 @@ export default function RegisterPage() {
         </CardContent>
         <CardFooter className="flex flex-col items-center justify-center space-y-2">
           <div className="text-sm text-slate-500">
-            Already have an account? <a href="/login" className="text-blue-600 hover:underline">Sign in</a>
+            Already have an account? <Link href="/login" className="text-blue-600 hover:underline">Sign in</Link>
           </div>
           <div className="text-sm text-slate-500">
-            <a href="/" className="text-slate-600 hover:underline">← Back to Home</a>
+            <Link href="/" className="text-slate-600 hover:underline">← Back to Home</Link>
           </div>
         </CardFooter>
       </Card>

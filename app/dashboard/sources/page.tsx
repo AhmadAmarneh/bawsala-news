@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Plus, Trash2, Rss } from 'lucide-react';
+import type { Source } from '@/lib/types';
 
 const sourceSchema = z.object({
   name: z.string().min(1, 'Source name is required'),
@@ -21,13 +22,13 @@ const sourceSchema = z.object({
 type SourceFormValues = z.infer<typeof sourceSchema>;
 
 export default function SourcesPage() {
-  const [sources, setSources] = useState<any[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [sourceToDelete, setSourceToDelete] = useState<string | null>(null);
   
-  const supabase = createClient();
+  const supabase = React.useMemo(() => createClient(), []);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<SourceFormValues>({
     resolver: zodResolver(sourceSchema),

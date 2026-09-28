@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 
 interface NewsFilterProps {
   categories: { id: string; name: string }[];
@@ -19,17 +19,7 @@ export function NewsFilter({ categories }: NewsFilterProps) {
   
   const [query, setQuery] = useState(currentQuery);
 
-  // Debounced search
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (query !== currentQuery) {
-        updateFilters(query, currentCategory);
-      }
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [query, currentCategory]);
-
-  const updateFilters = (q: string, cat: string) => {
+  const updateFilters = React.useCallback((q: string, cat: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (q) params.set('q', q);
     else params.delete('q');
@@ -40,7 +30,17 @@ export function NewsFilter({ categories }: NewsFilterProps) {
     startTransition(() => {
       router.push(`/?${params.toString()}`);
     });
-  };
+  }, [router, searchParams]);
+
+  // Debounced search
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (query !== currentQuery) {
+        updateFilters(query, currentCategory);
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [query, currentQuery, currentCategory, updateFilters]);
 
   return (
     <div className="mb-8 border-b-2 border-foreground pb-4">
