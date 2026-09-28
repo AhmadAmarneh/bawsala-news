@@ -4,6 +4,7 @@ import { ExternalLink } from 'lucide-react';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import DOMPurify from 'isomorphic-dompurify';
 
 export default async function SavedArticlesPage() {
   const supabase = await createClient();
@@ -68,7 +69,7 @@ export default async function SavedArticlesPage() {
               <CardContent className="flex-grow flex flex-col">
                 <div 
                   className="text-slate-600 text-sm line-clamp-3 mb-6 flex-grow prose prose-sm max-w-none" 
-                  dangerouslySetInnerHTML={{ __html: article.content }} 
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} 
                 />
                 <a href={article.type === 'exclusive' ? `/article/${article.id}` : article.original_url} target={article.type === 'aggregated' ? "_blank" : "_self"} className="w-full mt-auto inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-slate-100 hover:text-slate-900 h-10 px-4 py-2 transition-colors">
                   {article.type === 'exclusive' ? 'Read Story' : (

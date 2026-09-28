@@ -7,6 +7,7 @@ import parse from 'html-react-parser';
 import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
+import DOMPurify from 'isomorphic-dompurify';
 
 const categoryImages: Record<string, string> = {
   'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
@@ -118,7 +119,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                      {heroArticle?.title}
                    </h2>
                    <div className="font-serif text-foreground/90 text-xl leading-relaxed line-clamp-4 prose dark:prose-invert prose-p:my-0 prose-p:mb-2 prose-a:text-foreground">
-                     {heroArticle ? parse(heroArticle.content) : null}
+                     {heroArticle ? parse(DOMPurify.sanitize(heroArticle.content)) : null}
                    </div>
                 </Link>
                 
@@ -155,7 +156,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                          {article.title}
                        </h3>
                        <div className="font-serif text-foreground/80 text-sm leading-relaxed line-clamp-3 prose dark:prose-invert prose-p:my-0 prose-a:text-foreground">
-                         {parse(article.content)}
+                         {parse(DOMPurify.sanitize(article.content))}
                        </div>
                      </Link>
                      
@@ -217,7 +218,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                        {article.title}
                      </h3>
                      <div className="font-serif text-foreground/70 text-sm leading-relaxed line-clamp-3 prose dark:prose-invert prose-p:my-0 prose-a:text-foreground">
-                       {parse(article.content)}
+                       {parse(DOMPurify.sanitize(article.content))}
                      </div>
                    </Link>
                    <div className="mt-auto flex items-center justify-between font-sans text-[10px] uppercase font-bold border-t border-border/40 pt-4">

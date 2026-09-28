@@ -4,6 +4,7 @@ import { BookmarkButton } from '@/components/BookmarkButton';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import DOMPurify from 'isomorphic-dompurify';
 
 const categoryImages: Record<string, string> = {
   'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
@@ -102,7 +103,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       <div className="max-w-2xl mx-auto">
         <div 
           className="prose dark:prose-invert prose-lg prose-slate prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-foreground prose-a:font-bold prose-headings:font-serif prose-headings:font-bold prose-headings:text-foreground mx-auto"
-          dangerouslySetInnerHTML={{ __html: article.content }} 
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} 
         />
         
         {article.type === 'aggregated' && article.original_url && (
