@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RichTextEditor } from '@/components/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,22 +9,40 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createClient } from '@/lib/supabase/client';
 
-export default function EditorPage() {
+function EditorForm() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<string>('');
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const articleId = searchParams.get('id');
   const supabase = createClient();
 
   useEffect(() => {
-    async function fetchCategories() {
-      const { data } = await supabase.from('categories').select('id, name');
-      if (data) setCategories(data);
+    async function fetchData() {
+      // Fetch categories
+      const { data: catData } = await supabase.from('categories').select('id, name');
+      if (catData) setCategories(catData);
+
+      // If editing, fetch article
+      if (articleId) {
+        const { data: article } = await supabase
+          .from('articles')
+          .select('*')
+          .eq('id', articleId)
+          .single();
+        
+        if (article) {
+          setTitle(article.title);
+          setContent(article.content);
+          if (article.category_id) setCategoryId(article.category_id);
+        }
+      }
     }
-    fetchCategories();
-  }, [supabase]);
+    fetchData();
+  }, [supabase, articleId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,13 +53,29 @@ export default function EditorPage() {
 
     setLoading(true);
 
-    const { error } = await supabase.from('articles').insert({
-      title,
-      content,
-      type: 'exclusive',
-      category_id: categoryId || null,
-      published_at: new Date().toISOString(),
-    });
+    const { data: { user } } = await supabase.auth.getUser();
+
+    let error;
+    if (articleId) {
+      // Update
+      const result = await supabase.from('articles').update({
+        title,
+        content,
+        category_id: categoryId || null,
+      }).eq('id', articleId);
+      error = result.error;
+    } else {
+      // Insert
+      const result = await supabase.from('articles').insert({
+        title,
+        content,
+        type: 'exclusive',
+        category_id: categoryId || null,
+        author_id: user?.id,
+        published_at: new Date().toISOString(),
+      });
+      error = result.error;
+    }
 
     setLoading(false);
 
@@ -49,16 +83,17 @@ export default function EditorPage() {
       alert('Failed to save article.');
       console.error(error);
     } else {
-      alert('Article published successfully!');
-      router.push('/dashboard');
+      alert(articleId ? 'Article updated successfully!' : 'Article published successfully!');
+      router.push('/dashboard/articles');
+      router.refresh();
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Write New Article</h1>
-        <p className="text-slate-500 mt-2">Publish an exclusive local story.</p>
+        <h1 className="text-3xl font-bold text-slate-900">{articleId ? 'Edit Article' : 'Write New Article'}</h1>
+        <p className="text-slate-500 mt-2">{articleId ? 'Update your local story.' : 'Publish an exclusive local story.'}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -94,10 +129,18 @@ export default function EditorPage() {
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={loading}>
-            {loading ? 'Publishing...' : 'Publish Article'}
+            {loading ? 'Saving...' : (articleId ? 'Update Article' : 'Publish Article')}
           </Button>
         </div>
       </form>
     </div>
+  );
+}
+
+export default function EditorPage() {
+  return (
+    <Suspense fallback={<div>Loading editor...</div>}>
+      <EditorForm />
+    </Suspense>
   );
 }

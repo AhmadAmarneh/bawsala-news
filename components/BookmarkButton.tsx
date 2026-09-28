@@ -50,13 +50,13 @@ export function BookmarkButton({ articleId, initialIsSaved, className = '' }: Bo
         handleToggle();
       }}
       disabled={isPending}
-      className={`p-2 rounded-full transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${className}`}
+      className={`p-2 rounded-full transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}
       aria-label={isSaved ? "Remove bookmark" : "Bookmark article"}
       title={isSaved ? "Remove bookmark" : "Bookmark article"}
     >
       <Bookmark
         className={`w-5 h-5 transition-all duration-200 ${
-          isSaved ? 'fill-blue-600 text-blue-600 scale-110' : 'text-slate-500 hover:text-slate-700'
+          isSaved ? 'fill-blue-600 text-blue-600 scale-110' : 'text-muted-foreground hover:text-foreground'
         }`}
       />
     </button>

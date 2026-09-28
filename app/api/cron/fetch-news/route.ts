@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 import { createClient } from '@/lib/supabase/server';
 
-const parser = new Parser();
+const parser = new Parser({
+  customFields: {
+    item: [
+      ['media:content', 'mediaContent'],
+      ['media:thumbnail', 'mediaThumbnail'],
+      ['enclosure', 'enclosure'],
+      ['image', 'image']
+    ]
+  }
+});
 
 export async function GET(request: Request) {
   // Add authentication or a secret token check here if it's a real cron job
@@ -39,6 +48,22 @@ export async function GET(request: Request) {
             .single();
 
           if (!existing) {
+            // Attempt to extract image URL from various RSS formats
+            let extractedImage = null;
+            if (item.mediaContent && item.mediaContent['$'] && item.mediaContent['$'].url) {
+              extractedImage = item.mediaContent['$'].url;
+            } else if (item.mediaThumbnail && item.mediaThumbnail['$'] && item.mediaThumbnail['$'].url) {
+              extractedImage = item.mediaThumbnail['$'].url;
+            } else if (item.enclosure && item.enclosure.url) {
+              extractedImage = item.enclosure.url;
+            } else if (item.image && item.image.url) {
+              extractedImage = item.image.url;
+            } else {
+              // Try to find an img tag in the content as a last resort
+              const imgMatch = (item.content || '').match(/<img[^>]+src="([^">]+)"/);
+              if (imgMatch) extractedImage = imgMatch[1];
+            }
+
             // Insert new article
             await supabase.from('articles').insert({
               title: item.title || 'Untitled',
@@ -46,6 +71,7 @@ export async function GET(request: Request) {
               type: 'aggregated',
               source_id: source.id,
               original_url: item.link,
+              image_url: extractedImage,
               published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString()
             });
             insertedCount++;

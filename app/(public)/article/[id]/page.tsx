@@ -1,6 +1,25 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { BookmarkButton } from '@/components/BookmarkButton';
+import Image from 'next/image';
+import { ExternalLink } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+const categoryImages: Record<string, string> = {
+  'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+  'Sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=80',
+  'Politics': 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&q=80',
+  'Business': 'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?w=800&q=80',
+  'default': 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&q=80'
+};
+
+function getImageUrl(article: any) {
+  if (article.image_url) {
+    return article.image_url;
+  }
+  const catName = article.categories?.name || 'default';
+  return categoryImages[catName] || categoryImages['default'];
+}
 
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
@@ -21,7 +40,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
   const { data: article, error } = await supabase
     .from('articles')
-    .select('*, users(email), categories(name)')
+    .select('*, users(email), categories(name), sources(name)')
     .eq('id', id)
     .single();
 
@@ -29,39 +48,78 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
+  const authorName = article.type === 'exclusive' 
+    ? 'BAWSALA EXCLUSIVE' 
+    : article.sources?.name || 'EXTERNAL SOURCE';
+
   return (
-    <article className="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8 relative">
-      <div className="absolute top-12 right-4 sm:right-6 lg:right-8">
-        <BookmarkButton articleId={article.id} initialIsSaved={isSaved} />
-      </div>
+    <article className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-background min-h-screen">
       
-      <header className="mb-10 text-center pr-12">
-        {article.categories && (
-          <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">
-            {article.categories.name}
-          </span>
+      <header className="mb-10 text-center flex flex-col items-center">
+        <div className="font-sans text-xs font-bold uppercase text-muted-foreground mb-6 tracking-widest flex items-center gap-4">
+           <span>{article.categories?.name || 'News'}</span>
+           <span>•</span>
+           <time dateTime={article.published_at}>
+             {new Date(article.published_at).toLocaleDateString('en-US', {
+               year: 'numeric',
+               month: 'long',
+               day: 'numeric'
+             })}
+           </time>
+        </div>
+        
+        {article.type === 'aggregated' && article.original_url ? (
+          <a href={article.original_url} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black tracking-tight text-foreground leading-tight max-w-3xl group-hover:underline decoration-2 underline-offset-4 decoration-gray-400">
+              {article.title}
+            </h1>
+            <ExternalLink className="w-6 h-6 ml-4 text-muted-foreground/80 group-hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" />
+          </a>
+        ) : (
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black tracking-tight text-foreground leading-tight max-w-3xl">
+            {article.title}
+          </h1>
         )}
-        <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-          {article.title}
-        </h1>
-        <div className="mt-6 flex items-center justify-center text-sm text-slate-500 space-x-4">
-          {article.users && <span>By {article.users.email}</span>}
-          <span>•</span>
-          <time dateTime={article.published_at}>
-            {new Date(article.published_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </time>
+
+        <div className="mt-8 pt-6 border-t border-foreground w-full max-w-2xl flex items-center justify-between">
+          <div className="font-sans text-xs font-bold uppercase text-foreground tracking-widest">
+            BY {authorName}
+          </div>
+          <BookmarkButton articleId={article.id} initialIsSaved={isSaved} />
         </div>
       </header>
 
-      {/* Tailwind Typography Plugin (.prose) parses the Tiptap HTML cleanly */}
-      <div 
-        className="prose prose-lg prose-slate mx-auto prose-img:rounded-xl prose-a:text-blue-600 hover:prose-a:text-blue-500"
-        dangerouslySetInnerHTML={{ __html: article.content }} 
-      />
+      <div className="relative aspect-video w-full mb-12 bg-muted">
+         <Image 
+           src={getImageUrl(article)} 
+           fill 
+           className="object-cover" 
+           alt={article.title} 
+           priority 
+         />
+      </div>
+
+      <div className="max-w-2xl mx-auto">
+        <div 
+          className="prose dark:prose-invert prose-lg prose-slate prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-foreground prose-a:font-bold prose-headings:font-serif prose-headings:font-bold prose-headings:text-foreground mx-auto"
+          dangerouslySetInnerHTML={{ __html: article.content }} 
+        />
+        
+        {article.type === 'aggregated' && article.original_url && (
+          <div className="mt-12 pt-8 border-t border-border">
+            <a 
+              href={article.original_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center bg-foreground text-background px-8 py-3 font-sans text-sm font-bold uppercase tracking-widest hover:opacity-80 transition-colors"
+            >
+              Read Full Article on {article.sources?.name || 'Source'}
+              <ExternalLink className="w-4 h-4 ml-3" />
+            </a>
+          </div>
+        )}
+      </div>
+      
     </article>
   );
 }
