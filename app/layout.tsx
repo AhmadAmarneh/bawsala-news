@@ -27,8 +27,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${merriweather.variable} antialiased bg-background text-foreground font-sans`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange
         >
           {children}

@@ -1,29 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { BookmarkButton } from '@/components/BookmarkButton';
+import { ReadTimeBadge } from '@/components/ReadTimeBadge';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import DOMPurify from 'isomorphic-dompurify';
 
-const categoryImages: Record<string, string> = {
-  'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
-  'Sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=80',
-  'Politics': 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&q=80',
-  'Business': 'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?w=800&q=80',
-  'default': 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&q=80'
-};
-
 import type { Article } from '@/lib/types';
-
-function getImageUrl(article: Pick<Article, 'image_url' | 'categories'>) {
-  if (article.image_url) {
-    return article.image_url;
-  }
-  const catName = article.categories?.name || 'default';
-  return categoryImages[catName] || categoryImages['default'];
-}
-
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { id } = await params;
@@ -85,22 +69,25 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
         )}
 
         <div className="mt-8 pt-6 border-t border-foreground w-full max-w-2xl flex items-center justify-between">
-          <div className="font-sans text-xs font-bold uppercase text-foreground tracking-widest">
-            BY {authorName}
+          <div className="font-sans text-xs font-bold uppercase text-foreground tracking-widest flex items-center gap-3">
+            <span>BY {authorName}</span>
+            <ReadTimeBadge content={article.content} />
           </div>
           <BookmarkButton articleId={article.id} initialIsSaved={isSaved} />
         </div>
       </header>
 
-      <div className="relative aspect-video w-full mb-12 bg-muted">
-         <Image 
-           src={getImageUrl(article)} 
-           fill 
-           className="object-cover" 
-           alt={article.title} 
-           priority 
-         />
-      </div>
+      {article.image_url && (
+        <div className="relative aspect-video w-full mb-12 bg-muted">
+           <Image 
+             src={article.image_url} 
+             fill 
+             className="object-cover" 
+             alt={article.title} 
+             priority 
+           />
+        </div>
+      )}
 
       <div className="max-w-2xl mx-auto">
         <div 

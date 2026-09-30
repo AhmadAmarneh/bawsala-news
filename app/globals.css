@@ -3,73 +3,52 @@
 @plugin "../node_modules/tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
-@custom-variant sepia (&:is(.sepia *));
 
 :root {
-  --background: #FAFAFA;
-  --foreground: #111111;
-  --card: #FFFFFF;
-  --card-foreground: #111111;
-  --popover: #FFFFFF;
-  --popover-foreground: #111111;
-  --primary: #111111;
-  --primary-foreground: #FAFAFA;
-  --secondary: #F3F4F6;
-  --secondary-foreground: #111111;
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-  --accent: #F3F4F6;
-  --accent-foreground: #111111;
+  /* Classic Print Mode (Default / Light) */
+  --background: #F5F0E8;
+  --foreground: #2C1810;
+  --card: #EDE7DA;
+  --card-foreground: #2C1810;
+  --popover: #EDE7DA;
+  --popover-foreground: #2C1810;
+  --primary: #2C1810;
+  --primary-foreground: #F5F0E8;
+  --secondary: #E8E0D0;
+  --secondary-foreground: #2C1810;
+  --muted: #E8E0D0;
+  --muted-foreground: #6B5C4F;
+  --accent: #E8E0D0;
+  --accent-foreground: #2C1810;
   --destructive: #EF4444;
   --destructive-foreground: #FAFAFA;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #111111;
+  --border: #D4C9B8;
+  --input: #D4C9B8;
+  --ring: #6B5C4F;
   --radius: 0rem;
 }
 
 .dark {
-  --background: #121212;
-  --foreground: #E4E4E7;
-  --card: #18181B;
-  --card-foreground: #E4E4E7;
-  --popover: #18181B;
-  --popover-foreground: #E4E4E7;
-  --primary: #E4E4E7;
-  --primary-foreground: #121212;
-  --secondary: #27272A;
-  --secondary-foreground: #E4E4E7;
-  --muted: #27272A;
-  --muted-foreground: #A1A1AA;
-  --accent: #27272A;
-  --accent-foreground: #E4E4E7;
+  /* Elegant Dark Mode */
+  --background: #0F1A2E;
+  --foreground: #E8DCC8;
+  --card: #152238;
+  --card-foreground: #E8DCC8;
+  --popover: #152238;
+  --popover-foreground: #E8DCC8;
+  --primary: #C9A96E;
+  --primary-foreground: #0F1A2E;
+  --secondary: #1A2D4A;
+  --secondary-foreground: #E8DCC8;
+  --muted: #1A2D4A;
+  --muted-foreground: #8B9AB5;
+  --accent: #1A2D4A;
+  --accent-foreground: #C9A96E;
+  --border: #243754;
+  --input: #243754;
+  --ring: #C9A96E;
   --destructive: #7F1D1D;
-  --destructive-foreground: #E4E4E7;
-  --border: #27272A;
-  --input: #27272A;
-  --ring: #A1A1AA;
-}
-
-.sepia {
-  --background: #F4ECD8;
-  --foreground: #433422;
-  --card: #EFE4CE;
-  --card-foreground: #433422;
-  --popover: #EFE4CE;
-  --popover-foreground: #433422;
-  --primary: #433422;
-  --primary-foreground: #F4ECD8;
-  --secondary: #EADDCD;
-  --secondary-foreground: #433422;
-  --muted: #EADDCD;
-  --muted-foreground: #5C4A3D;
-  --accent: #EADDCD;
-  --accent-foreground: #433422;
-  --destructive: #991B1B;
-  --destructive-foreground: #F4ECD8;
-  --border: #D6C8B3;
-  --input: #D6C8B3;
-  --ring: #5C4A3D;
+  --destructive-foreground: #E8DCC8;
 }
 
 @theme inline {
@@ -106,5 +85,67 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.4s ease, color 0.3s ease;
+    
+    /* Classic Print typography by default */
+    font-family: var(--font-merriweather), Georgia, 'Times New Roman', serif;
+  }
+  
+  h1, h2, h3, h4 {
+    font-family: var(--font-merriweather), Georgia, 'Times New Roman', serif !important;
+    letter-spacing: -0.01em;
   }
 }
+
+/* Elegant Dark Mode Specifics */
+.dark h1,
+.dark h2,
+.dark h3 {
+  color: #E8DCC8 !important;
+}
+
+.dark a:hover {
+  color: #C9A96E !important;
+}
+
+/* ═══════════════════════════════════════════════
+   TWEAK: Vintage Images
+   Grayscale by default, full color on hover
+   ═══════════════════════════════════════════════ */
+.tweak-vintage-images img:not([data-no-vintage]) {
+  filter: grayscale(100%) contrast(1.05);
+  transition: filter 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.tweak-vintage-images *:hover > img:not([data-no-vintage]),
+.tweak-vintage-images img:not([data-no-vintage]):hover {
+  filter: grayscale(0%) contrast(1);
+}
+
+/* ═══════════════════════════════════════════════
+   TWEAK: Reading Experience
+   Top progress bar handled by React component;
+   add subtle spacing for the bar
+   ═══════════════════════════════════════════════ */
+.tweak-reading body {
+  padding-top: 3px;
+}
+
+
+/* -----------------------------------------------
+   ADVANCED THEME CUSTOMIZER
+   ----------------------------------------------- */
+html {
+  font-size: calc(16px * var(--font-scale, 1)) !important;
+}
+
+.tweak-compact .gap-x-8 { column-gap: 1rem !important; }
+.tweak-compact .gap-y-12 { row-gap: 1.5rem !important; }
+.tweak-compact .gap-x-12 { column-gap: 1.5rem !important; }
+.tweak-compact .gap-y-16 { row-gap: 2rem !important; }
+.tweak-compact .xl\:gap-x-16 { column-gap: 2rem !important; }
+.tweak-compact .mb-12 { margin-bottom: 1.5rem !important; }
+.tweak-compact .mb-6 { margin-bottom: 0.75rem !important; }
+.tweak-compact .pb-12 { padding-bottom: 1.5rem !important; }
+.tweak-compact article { padding-top: 0.5rem !important; }
+
