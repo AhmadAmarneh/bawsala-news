@@ -1,4 +1,3 @@
-export const runtime = 'nodejs';
 import { createClient } from '@/lib/supabase/server';
 import { ExternalLink, Clock } from 'lucide-react';
 import { BookmarkButton } from '@/components/BookmarkButton';
@@ -10,7 +9,7 @@ import parse from 'html-react-parser';
 import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 import type { Article } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -98,7 +97,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                      {article.title}
                    </h3>
                    <div className="font-serif text-foreground/70 text-sm leading-relaxed line-clamp-3 prose dark:prose-invert prose-p:my-0 prose-a:text-foreground">
-                     {parse(DOMPurify.sanitize(article.content))}
+                     {parse(sanitizeHtml(article.content))}
                    </div>
                  </Link>
                  <div className="mt-auto flex items-center justify-between font-sans text-[10px] uppercase font-bold border-t border-border/40 pt-4">
@@ -146,7 +145,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                  {heroArticle?.title}
                </h2>
                <div className="font-serif text-foreground/90 text-xl leading-relaxed line-clamp-4 prose dark:prose-invert prose-p:my-0 prose-p:mb-2 prose-a:text-foreground">
-                 {heroArticle ? parse(DOMPurify.sanitize(heroArticle.content)) : null}
+                 {heroArticle ? parse(sanitizeHtml(heroArticle.content)) : null}
                </div>
             </Link>
             
@@ -185,7 +184,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                      {article.title}
                    </h3>
                    <div className="font-serif text-foreground/80 text-sm leading-relaxed line-clamp-3 prose dark:prose-invert prose-p:my-0 prose-a:text-foreground">
-                     {parse(DOMPurify.sanitize(article.content))}
+                     {parse(sanitizeHtml(article.content))}
                    </div>
                  </Link>
                  
@@ -247,7 +246,7 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
                        {article.title}
                      </h3>
                      <div className="font-serif text-foreground/70 text-sm leading-relaxed line-clamp-3 prose dark:prose-invert prose-p:my-0 prose-a:text-foreground">
-                       {parse(DOMPurify.sanitize(article.content))}
+                       {parse(sanitizeHtml(article.content))}
                      </div>
                    </Link>
                    <div className="mt-auto flex items-center justify-between font-sans text-[10px] uppercase font-bold border-t border-border/40 pt-4">

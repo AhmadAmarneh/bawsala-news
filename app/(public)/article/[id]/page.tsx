@@ -1,4 +1,3 @@
-export const runtime = 'nodejs';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { BookmarkButton } from '@/components/BookmarkButton';
@@ -6,7 +5,7 @@ import { ReadTimeBadge } from '@/components/ReadTimeBadge';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 
 import type { Article } from '@/lib/types';
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
@@ -93,7 +92,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       <div className="max-w-2xl mx-auto">
         <div 
           className="prose dark:prose-invert prose-lg prose-slate prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-foreground prose-a:font-bold prose-headings:font-serif prose-headings:font-bold prose-headings:text-foreground mx-auto"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} 
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }} 
         />
         
         {article.type === 'aggregated' && article.original_url && (
