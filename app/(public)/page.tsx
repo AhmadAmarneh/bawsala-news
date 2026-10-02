@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 import { createClient } from '@/lib/supabase/server';
 import { ExternalLink, Clock } from 'lucide-react';
 import { BookmarkButton } from '@/components/BookmarkButton';
